@@ -1,0 +1,183 @@
+<html>
+    <head>
+        <title>Tennis Multiplayer Match</title>
+    </head>
+    <body>
+        <font color="Blue"><h3><center>Tennis Multiplayer Practise</center></h3>
+            </font>
+       <h4><center>press space to view full gamespace</center></h4>
+    </body>
+    
+
+<canvas id="gameCanvas" width="1350" height="650"></canvas>
+    
+
+<script>
+var canvas;
+var canvasContext;
+var ballX = 50;
+var ballY = 50;
+var ballSpeedX = 20;
+var ballSpeedY = 20;
+document.write(ballX);
+var player1Score = 0;
+var player2Score = 0;
+const WINNING_SCORE = 7;
+
+
+var paddle1Y = 250;
+var paddle2Y = 250;
+const PADDLE_THICKNESS = 10;
+const PADDLE_HEIGHT = 100;
+var right1 = false;
+var left2= false;
+var up1= false;
+var down1 = false;
+var right2= false;
+var left1= false;
+var up2= false;
+var down2= false;
+
+
+window.onload = f() 
+function f()
+{
+	canvas = document.getElementById('gameCanvas');
+	canvasContext = canvas.getContext('2d');
+
+	var fps = 30;
+	setInterval( function() {
+			moveShit();
+			drawShit();	
+		}, 1000/fps);
+    document.addEventListener('keydown', keyp, false);
+    document.addEventListener('keyup', keynp, false);
+}
+
+
+function ballReset() 
+    {
+    ballSpeedX = -ballSpeedX;
+	ballX = canvas.width/2;
+	ballY = canvas.height/2;
+}
+
+function keyp(event)
+{
+    if(event.keyCode ==74) 
+    {
+        down2= true;
+        paddle2Y+=15;
+    }
+    else if(event.keyCode == 73) 
+    {
+        up2= true;
+        paddle2Y-=15;
+    }
+    if(event.keyCode == 68) 
+    {
+    	down1= true;
+        paddle1Y+=15;
+    }
+    else if(event.keyCode == 69) 
+    {
+    	up1= true;
+        paddle1Y-=15;
+        
+    }
+}
+function keynp(event) {
+    if(event.keyCode == 74) {
+        down2= true;
+    }
+    else if(event.keyCode == 73) {
+        up2= true;
+    }
+    if(event.keyCode == 68) {
+    	down1= true;
+    }
+    else if(event.keyCode == 69) {
+    	up1= true;
+    }
+}
+
+function moveShit() 
+    {
+
+	ballX = ballX + ballSpeedX;
+	ballY = ballY + ballSpeedY;
+	
+	if(ballX < 0) {
+		if(ballY > paddle1Y &&
+			ballY < paddle1Y+PADDLE_HEIGHT) {
+			ballSpeedX = -ballSpeedX;
+
+			var deltaY = ballY
+					-(paddle1Y+PADDLE_HEIGHT/2);
+			ballSpeedY = deltaY * 0.35;
+		} else {
+			player2Score++; // must be BEFORE ballReset()
+			ballReset();
+		}
+	}
+	if(ballX > canvas.width) {
+		if(ballY > paddle2Y &&
+			ballY < paddle2Y+PADDLE_HEIGHT) {
+			ballSpeedX = -ballSpeedX;
+
+			var deltaY = ballY
+					-(paddle2Y+PADDLE_HEIGHT/2);
+			ballSpeedY = deltaY * 0.35;
+		} else {
+			player1Score++; // must be BEFORE ballReset()
+			ballReset();	
+		}
+	}
+	if(ballY < 0) {
+		ballSpeedY = -ballSpeedY;
+	}
+	if(ballY > canvas.height) {
+		ballSpeedY = -ballSpeedY;
+	}
+}
+
+function drawNet() {
+	for(var i=30;i<canvas.height;i+=20) {
+		colorRect(canvas.width/2-1,i,2,10,'white');
+	}
+}
+
+function drawShit() {
+	// next line blanks out the screen with black
+	colorRect(0,0,canvas.width,canvas.height,'blue');
+    drawNet();
+
+	// this is left player paddle
+	colorRect(0,paddle1Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+
+	// this is right AI paddle
+	colorRect(canvas.width-PADDLE_THICKNESS,paddle2Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+
+	// next line draws the ball
+	colorCircle(ballX, ballY, 10, 'white');
+    canvasContext.fillStyle="black";
+    canvasContext.fillText("Score", canvas.width/2-20, 20);
+	canvasContext.fillText(player1Score, canvas.width/2-100, 30);
+	canvasContext.fillText(player2Score, canvas.width/2+100, 30);
+}
+
+function colorCircle(centerX, centerY, radius, drawColor) {
+	canvasContext.fillStyle = drawColor;
+	canvasContext.beginPath();
+	canvasContext.arc(centerX, centerY, radius, 0,Math.PI*2,true);
+	canvasContext.fill();
+}
+
+function colorRect(leftX,topY, width,height, drawColor) {
+	canvasContext.fillStyle = drawColor;
+	canvasContext.fillRect(leftX,topY, width,height);
+}
+
+</script>
+
+</html>
