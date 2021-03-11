@@ -1,0 +1,246 @@
+<html>
+    <head>
+        <title>The Snake game</title>
+    </head>
+    <body>
+        <font color="green"><center><h3>The Snake Game</h3></center></font>
+    </body>
+    <center><canvas id="gameCanvas" width="700" height="700"></canvas></center>
+    <script>
+        var canvas;
+        var canvasContext;
+        var direction = 'r';
+        var lengthOfSnake = 5;
+        var score=0;
+        var nextLevel=5;
+        var appleX=100;
+        var appleY=300;
+        var notOnPause=true;
+        var lost=false;
+        var start=0;
+        var nextx=10;//buggy randomizing
+        var nexty=30;//buggy randomizing
+        var posX = new Array(35);
+        var posY = new Array(35); 
+
+        window.onload = game()
+        function game()
+        {
+	        canvas = document.getElementById('gameCanvas');
+	        canvasContext = canvas.getContext('2d');
+            var fps = 10;
+            initialisePos();
+	        setInterval(function(){
+                if(notOnPause)
+                {
+                    drawShit();
+                    moveShit();
+                 }
+                },1000/fps);
+            document.addEventListener('keydown', keyp, false);
+            document.addEventListener('keyup', keynp, false);
+        }
+
+        function keyp(event)
+        {
+            if(event.keyCode ==68) //d
+            {
+                if(direction=='u')
+                    lost=true;
+                else
+                 direction='d';
+            }
+            if(event.keyCode ==69) //e
+            {
+                if(direction=='d')
+                    lost=true;
+                else
+                 direction='u';
+            }
+            if(event.keyCode ==83) //s
+            {
+                if(direction=='r')
+                    lost=true;
+                else
+                 direction='l';
+            }
+            if(event.keyCode ==70) //f
+            {
+                if(direction=='l')
+                    lost=true;
+                else
+                 direction='r';
+            }
+            if(event.keyCode==32)//space bar for space
+                notOnPause=!notOnPause;
+
+        }
+
+        function initialisePos()
+        {
+            for(var i=0;i<lengthOfSnake;i++)
+            {
+                posX[i]=20*i;
+                posY[i]=20;
+            }
+            for(var i=lengthOfSnake;i<35;i++)
+            {
+                posX[i]=-1;
+                posY[i]=-1;
+            }
+        }
+
+        function drawShit()
+        {   
+            if(lost)
+               {
+                    losingMessage();
+                    playAgain();
+               }
+            else
+            {
+                colorRect(0,0,canvas.width,canvas.height,'green');//grass
+                colorCircle(appleX, appleY, 10, 'red');// apple
+                canvasContext.font="30px Georgia";
+                canvasContext.fillStyle="Black";
+                canvasContext.fillText("Score: "+score, 300,30);
+                for(var i=0;i<100;i++) //snake
+                {
+                    if(posX[i]!=(-1))
+                    {
+                        colorRect(posX[i],posY[i],20,20,'blue'); 
+                    }
+                }
+            }
+        }
+
+        function colorRect(leftX,topY, width,height, drawColor)
+        {
+	        canvasContext.fillStyle = drawColor;
+	        canvasContext.fillRect(leftX,topY, width,height);
+        }
+
+        function colorCircle(centerX, centerY, radius, drawColor) 
+        {
+	        canvasContext.fillStyle = drawColor;
+	        canvasContext.beginPath();
+	        canvasContext.arc(centerX, centerY, radius, 0,Math.PI*2,true);
+	        canvasContext.fill();
+        }
+        
+        function moveShit()
+        {
+            var tx=posX[lengthOfSnake-1];
+            var ty=posY[lengthOfSnake-1];
+            for(var i=0;i<(lengthOfSnake);i++)
+            {
+                posX[i]=posX[i+1];
+                posY[i]=posY[i+1];
+            }
+            if(direction=='r')
+            {
+                posX[lengthOfSnake-1]=tx+20;
+                posY[lengthOfSnake-1]=ty;
+            }
+            else if(direction=='l')
+            {
+                posX[lengthOfSnake-1]=tx-20;
+                posY[lengthOfSnake-1]=ty;
+            }
+            else if(direction=='u')
+            {
+                posX[lengthOfSnake-1]=tx;
+                posY[lengthOfSnake-1]=ty-20;
+            }
+            else if(direction=='d')
+            {
+                posX[lengthOfSnake-1]=tx;
+                posY[lengthOfSnake-1]=ty+20;
+            }
+            checkScore();
+            checkLose();
+        }
+
+        function checkScore()
+        {   
+            if(posX[lengthOfSnake-1]<(appleX+20) & (posX[lengthOfSnake-1])>(appleX-40)  & posY[lengthOfSnake-1]<(appleY+20) & (posY[lengthOfSnake-1])>(appleY-40))
+                {
+                    appleX=appleX+nextx;// random - buggy....fix me
+                    appleY=appleY+nexty; //
+                    if(appleX>650)//
+                        appleX=10;//
+                    if(appleY>650)//
+                        appleY=10;//
+                    score=score+1;//
+                }
+            if(score==nextLevel)// increasing length of snake after every 5 points
+            {
+                nextLevel=nextLevel+5;
+                var tx=0;
+                var ty=0;
+                if(posX[0]==posX[1])
+                {
+                    tx=posX[0];
+                    if(posY[lengthOfSnake-1]>posY[0])
+                        ty=posY[0]-20;
+                    else
+                        ty=posY[0]+20;
+                }
+                if(posY[0]==posY[1])
+                {
+                    ty=posY[0];
+                    if(posX[lengthOfSnake-1]>posX[0])
+                        tx=posX[0]-20;
+                    else
+                        tx=posX[0]+20;
+                }
+                for(var i=lengthOfSnake;i>0;i--)
+                {
+                    posX[i+1]=posX[i];
+                    posY[i+1]=posY[i];
+                }
+                posX[0]=tx;
+                posY[0]=ty;
+                lengthOfSnake=lengthOfSnake+1;
+            }
+        }
+
+        function checkLose()
+        {
+            if(posX[lengthOfSnake-1]==700 || posY[lengthOfSnake-1]==700 ||posX[lengthOfSnake-1]==-20 || posY[lengthOfSnake-1]==-20 )
+                lost=true;
+            else
+            {
+                for(var unit=0;unit<lengthOfSnake-1;unit++)
+                {
+                    if(posX[lengthOfSnake-1]==posX[unit] && posY[lengthOfSnake-1]==posY[unit] )
+                        lost=true;
+                }
+            }
+        }
+
+        function losingMessage()
+        {
+            colorRect(0,0,canvas.width,canvas.height,'black');
+            canvasContext.fillStyle="white";
+            canvasContext.font="50px Georgia";
+            canvasContext.fillText("You Lost", 250, 200);
+            canvasContext.font="30px Verdana";
+            canvasContext.fillText("Score: "+score, 275, 300);
+            canvasContext.font="20px Verdana";
+            canvasContext.fillText(" Press space to restart ", 250, 600);
+            notOnPause=false;
+        }
+
+        function playAgain()
+        {
+            score=0;
+            lengthOfSnake=5;
+            direction='r';
+            lost = false;
+            initialisePos();
+            start=0;
+
+        }
+    </script>
+</html>
